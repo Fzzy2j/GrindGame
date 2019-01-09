@@ -16,14 +16,16 @@ public class Controls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.X))
         {
             RaycastHit2D hit = Physics2D.Raycast(gameObject.transform.position, getDirection());
-            if (hit.collider != null)
+            if (hit.collider != null && hit.transform.gameObject.layer == GameManager.I.GrappleSurfaceLayer)
             {
                 grappleString = Instantiate(grappleStringPrefab.gameObject).GetComponent<StringRenderer>();
                 grappleString.point3.position = hit.point;
                 grappleString.point1.position = gameObject.transform.position;
                 grappleString.centerString();
+                
                 joint = gameObject.AddComponent(typeof(DistanceJoint2D)) as DistanceJoint2D;
                 joint.connectedBody = grappleString.point3.GetComponent<Rigidbody2D>();
+                joint.maxDistanceOnly = true;
             }
         }
         if (Input.GetKeyUp(KeyCode.X))
@@ -33,17 +35,14 @@ public class Controls : MonoBehaviour
             if (joint != null)
                 Destroy(joint);
         }
-        if (Input.GetKey(KeyCode.LeftArrow) && rigidBody.velocity.x > -1)
-        {
-            rigidBody.AddForce(new Vector2(-1, 0));
-        }
-        if (Input.GetKey(KeyCode.RightArrow) && rigidBody.velocity.x < 1)
-        {
-            rigidBody.AddForce(new Vector2(1, 0));
-        }
 
         if (grappleString != null)
+        {
             grappleString.point1.position = gameObject.transform.position;
+            rigidBody.AddForce(rigidBody.velocity * Time.deltaTime * 25);
+        }
+
+        gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
 
     }
 
